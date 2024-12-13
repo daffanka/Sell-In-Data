@@ -27,17 +27,17 @@ This script fetches PO data for the last three months (including MTD) from Bosne
 
 ---
 
-## **2. SI Data Migration Flow**
+### **2. SI Data Migration Flow**
 This process is executed **after month closing** to ensure accurate migration of Sell-In data.
 
 ### **Flow Diagram**
 ```mermaid
 graph TD
-    A[SQL Server (Bosnet)] -->|Extract Data| B[Python Script (bosnet_po_tracking)]
-    A -->|Extract Data| C[Python Script (bosnet_po_tracking_v1a)]
-    B -->|Load Data| D[Google BigQuery - PO Table]
+    A["SQL Server (Bosnet)"] -->|Extract Data| B["Python Script (bosnet_po_tracking)"]
+    A -->|Extract Data| C["Python Script (bosnet_po_tracking_v1a)"]
+    B -->|Load Data| D["Google BigQuery - PO Table"]
     C -->|Load Data| D
-    D -->|Post-Processing| E[Data Analytics/Reporting]
+    D -->|Post-Processing| E["Data Analytics/Reporting"]
 ```
 
 ---
