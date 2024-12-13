@@ -1,36 +1,126 @@
-**Sell In Data Flow**
+# Sell-In Data Flow
 
-![image](https://github.com/user-attachments/assets/741923b2-0f23-43c1-8ff5-b1136315cc93)
+This repository contains Python scripts and SQL queries for managing and migrating **Sell-In Data** between SQL Server (Bosnet) and Google BigQuery. Below is a detailed explanation of the workflow, logic, and data lineage.
 
-**Python Description**
-1. bosnet_po_tracking 
-This Python Take data from Bosnet (SQL Server) to Data Warehouse (Google Big Query) for PO MTD data
-Logic:
-- PO date = MTD
-- Channel = 'GT', 'MTI'
-- Status = Excluding 'Rejected', 'Canceled'
-- PO Number = Excluding 'RES'
+---
 
-2. bosnet_po_tracking_v1a
-This Python Take data from Bosnet (SQL Server) to Data Warehouse (Google Big Query) for PO MTD data
-Logic:
-- PO date = Last 3 Month inclued MTD
-- Channel = 'GT', 'MTI'
-- Status = Excluding 'Rejected', 'Canceled'
+## **1. Sell-In Data Flow Overview**
+### **Python Scripts**
+#### **1.1. bosnet_po_tracking**
+This script fetches Purchase Order (PO) data for Month-To-Date (MTD) from Bosnet (SQL Server) and uploads it to Google BigQuery.
 
-**SI Data Migration Flow**
-This flow only run after month closing 
+**Logic:**
+- **PO Date:** Month-To-Date (MTD)
+- **Channel:** `GT`, `MTI`
+- **Status:** Exclude `Rejected`, `Canceled`
+- **PO Number:** Exclude entries with `RES`
 
-![image](https://github.com/user-attachments/assets/78896d40-345c-49ba-a260-6abdb4334e73)
+---
 
-**Data Lineage on Data Warehouse**
-1.Shipment
+#### **1.2. bosnet_po_tracking_v1a**
+This script fetches PO data for the last three months (including MTD) from Bosnet (SQL Server) and uploads it to Google BigQuery.
 
-![image](https://github.com/user-attachments/assets/4dc5e2ab-5220-43bc-a824-222683ced285)
+**Logic:**
+- **PO Date:** Last 3 Months (including MTD)
+- **Channel:** `GT`, `MTI`
+- **Status:** Exclude `Rejected`, `Canceled`
 
-2.PO
+---
 
-![image](https://github.com/user-attachments/assets/e02f1e93-ba55-422b-a7a7-90ef656d8189)
+## **2. SI Data Migration Flow**
+This process is executed **after month closing** to ensure accurate migration of Sell-In data.
 
+### **Flow Diagram**
+```mermaid
+graph TD
+    A[SQL Server (Bosnet)] -->|Extract Data| B[Python Script (bosnet_po_tracking)]
+    A -->|Extract Data| C[Python Script (bosnet_po_tracking_v1a)]
+    B -->|Load Data| D[Google BigQuery - PO Table]
+    C -->|Load Data| D
+    D -->|Post-Processing| E[Data Analytics/Reporting]
+```
 
-_In this repository you can download the python, sql from sql server to, and sql from data warehouse_
+---
+
+## **3. Data Lineage on Data Warehouse**
+
+### **3.1. Shipment Data**
+```mermaid
+graph TD
+    A[SQL Server - Shipment Table] -->|Transform| B[Python Script]
+    B -->|Load| C[Google BigQuery - Shipment Table]
+    C -->|Analytics| D[Power BI / Dashboards]
+```
+
+### **3.2. Purchase Order (PO) Data**
+```mermaid
+graph TD
+    A[SQL Server - PO Table] -->|Transform| B[Python Script]
+    B -->|Load| C[Google BigQuery - PO Table]
+    C -->|Analytics| D[Power BI / Dashboards]
+```
+
+---
+
+## **4. Repository Structure**
+```
+.
+├── python_scripts/
+│   ├── bosnet_po_tracking.py
+│   └── bosnet_po_tracking_v1a.py
+├── sql_queries/
+│   ├── sql_server_to_dw.sql
+│   └── dw_post_processing.sql
+├── README.md
+└── assets/
+    ├── sell_in_flow.png
+    └── data_lineage.png
+```
+
+---
+
+## **5. How to Use**
+
+### Prerequisites
+- Python 3.x
+- Required Python libraries (listed in `requirements.txt`)
+- Access to SQL Server (Bosnet)
+- Google Cloud SDK configured with access to BigQuery
+
+### Steps
+1. Clone the repository:
+   ```bash
+   git clone <repository-url>
+   ```
+2. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+3. Update connection details in the Python scripts:
+   - SQL Server credentials
+   - Google BigQuery credentials
+4. Run the appropriate script:
+   ```bash
+   python python_scripts/bosnet_po_tracking.py
+   ```
+5. Verify data in Google BigQuery.
+
+---
+
+## **6. Key Diagrams**
+### Sell-In Data Flow
+![Sell-In Data Flow](assets/sell_in_flow.png)
+
+### Data Lineage (Shipment)
+![Shipment Data Lineage](assets/data_lineage.png)
+
+---
+
+## **7. License**
+This project is licensed under the MIT License. See `LICENSE` for more details.
+
+---
+
+## **8. Contact**
+For any questions or feedback, please reach out to the repository maintainer.
+
